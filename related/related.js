@@ -1,16 +1,20 @@
 function relatedOpen(e) {
     var linkid = this.dataset.linkid;
-    var list = document.getElementById('related_links_'+linkid);
-    var html = list.outerHTML;
+    var listHTML = document.getElementById('related_links_'+linkid).outerHTML;
     var popin = document.getElementById('related_popin');
-    popin.innerHTML = html;
     var bodyRect = document.body.getBoundingClientRect();
     var elemRect = this.getBoundingClientRect();
     var offsetY  = elemRect.top - bodyRect.top + 24;
     var offsetX  = elemRect.left - bodyRect.left;
-    if (popin.dataset.theme === 'material') {
-        offsetX -= popin.clientWidth;
+    var right = bodyRect.right - elemRect.right;
+    
+    if (offsetX > right) {
+        offsetX -= popin.clientWidth - 24;
     }
+    /*if (popin.dataset.theme === 'material') {
+        offsetX -= popin.clientWidth;
+    }*/
+    popin.innerHTML = listHTML;
     if (popin.dataset.linkid == linkid && popin.style.visibility == '') {
         popin.style.visibility = 'hidden';
     } else {
