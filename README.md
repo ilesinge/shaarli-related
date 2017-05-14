@@ -4,6 +4,8 @@ I am a [Shaarli](https://github.com/shaarli/Shaarli) plugin to show related link
 ## What I look like
 ![Screenshot of Shaarli related plugin](screenshot.png)
 
+Find me in my natural environment on https://b.ndre.gr
+
 ## Install me
 - Download my source code: https://github.com/ilesinge/shaarli-related/archive/master.zip
 - Unpack it
