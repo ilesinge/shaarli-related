@@ -20,3 +20,6 @@
 #related_popin .linklist-item-title {
     background: none;
 }
+#related_popin .linktitle {
+    font-size: inherit;
+}
