@@ -36,14 +36,16 @@ function hook_related_render_linklist($data, $conf)
                     $count_common = count(array_intersect($current_tags, $link_tags));
                     // @TODO config minimum number of identical tags
                     if ($count_common > 0) {
-                        $count[] = $count_common;
+                        $link['count'] = $count_common;
                         $related[] = $link;
-                        
                     }
                 }
             }
         }
-        array_multisort($count, SORT_DESC, $related);
+        shuffle($related);
+        usort($related, function($a, $b) {
+            return $b['count'] - $a['count'];
+        });
         // @TODO config how many links
         $related = array_slice($related, 0, 5);
         
