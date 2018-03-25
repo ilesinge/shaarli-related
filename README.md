@@ -1,5 +1,5 @@
 # shaarli-related
-I am a [Shaarli](https://github.com/shaarli/Shaarli) plugin to show related links based on the number of identical tag.
+I am a [Shaarli](https://github.com/shaarli/Shaarli) plugin to show related links based on the number of identical tags. I enable a different way to explore the links between your links.
 
 ## What I look like
 ![Screenshot of Shaarli related plugin](screenshot.png)
