@@ -1,4 +1,6 @@
 <?php
+use Shaarli\Router;
+use Shaarli\Plugin\PluginManager;
 
 /**
  * Hook render_linklist.
