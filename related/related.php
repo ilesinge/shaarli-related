@@ -1,5 +1,9 @@
 <?php
 
+use Shaarli\Config\ConfigManager;
+use Shaarli\Plugin\PluginManager;
+use Shaarli\Router;
+
 /**
  * Hook render_linklist.
  *
@@ -20,11 +24,11 @@
 function hook_related_render_linklist($data, $conf)
 {
     $theme = $conf->get('resource.theme');
-    
+
     $html = file_get_contents(PluginManager::$PLUGINS_PATH . '/related/related.html');
     $link_html = file_get_contents(PluginManager::$PLUGINS_PATH . '/related/related_link.html');
     global $linkDb;
-    
+
     foreach ($data['links'] as &$value) {
         $current_tags = explode(' ', $value['tags']);
         $related = [];
@@ -48,7 +52,7 @@ function hook_related_render_linklist($data, $conf)
         });
         // @TODO config how many links
         $related = array_slice($related, 0, 5);
-        
+
         $list_items = '';
         foreach ($related as $related_link) {
             $description = html_entity_decode($related_link['description']);
@@ -56,16 +60,16 @@ function hook_related_render_linklist($data, $conf)
             $description_length = 150;
             $description = mb_strlen($description) > $description_length ? mb_substr($description, 0, $description_length)."..." : $description;
             $description = htmlentities($description);
-            
+
             // @TODO Add config to switch URL <=> shorturl
-            
+
             $list_items .= sprintf($link_html,
                 '?'.$related_link['shorturl'],
                 $related_link['title'],
                 $description
             );
         }
-        
+
         $link_plugin = sprintf($html,
             $value['id'],
             $value['id'],
