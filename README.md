@@ -14,8 +14,6 @@ Find me in my natural environment on https://b.ndre.gr
 - Enable the "related" plugin
 
 ## QA
-I was tested on Shaarli v.0.9, with the default, vintage and material themes.
-
 If you find any bug, or have some ideas, open a github issue! Pull requests are welcome.
 
 ## Ideas
