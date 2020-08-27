@@ -84,6 +84,7 @@ function hook_related_render_linklist($data, $conf)
 
         $link_plugin = sprintf($html,
             $value['id'],
+            $data['_BASE_PATH_'],
             $value['id'],
             $list_items
         );
