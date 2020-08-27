@@ -12,7 +12,7 @@ if (class_exists('Shaarli\Legacy\LegacyRouter')) {
 }
 else
 {
-    $routerClass = 'Router';
+    $routerClass = 'Shaarli\Router';
 }
 
 /**
