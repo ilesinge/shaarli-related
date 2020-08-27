@@ -2,7 +2,18 @@
 
 use Shaarli\Config\ConfigManager;
 use Shaarli\Plugin\PluginManager;
+use Shaarli\Legacy\LegacyRouter;
 use Shaarli\Router;
+
+
+global $routerClass;
+if (class_exists('Shaarli\Legacy\LegacyRouter')) {
+    $routerClass = 'Shaarli\Legacy\LegacyRouter';
+}
+else
+{
+    $routerClass = 'Router';
+}
 
 /**
  * Hook render_linklist.
@@ -27,8 +38,8 @@ function hook_related_render_linklist($data, $conf)
 
     $html = file_get_contents(PluginManager::$PLUGINS_PATH . '/related/related.html');
     $link_html = file_get_contents(PluginManager::$PLUGINS_PATH . '/related/related_link.html');
-    global $linkDb;
 
+    $linkDb = $data['links'];
     foreach ($data['links'] as &$value) {
         $current_tags = explode(' ', $value['tags']);
         $related = [];
@@ -56,6 +67,7 @@ function hook_related_render_linklist($data, $conf)
         $list_items = '';
         foreach ($related as $related_link) {
             $description = html_entity_decode($related_link['description']);
+            $description = strip_tags($related_link['description']);
             // @TODO config description length
             $description_length = 150;
             $description = mb_strlen($description) > $description_length ? mb_substr($description, 0, $description_length)."..." : $description;
@@ -102,7 +114,8 @@ function hook_related_render_includes($data)
 {
     // List of plugin's CSS files.
     // Note that you just need to specify CSS path.
-    if ($data['_PAGE_'] == Router::$PAGE_LINKLIST) {
+    global $routerClass;
+    if ($data['_PAGE_'] == $routerClass::$PAGE_LINKLIST) {
         $data['css_files'][] = PluginManager::$PLUGINS_PATH . '/related/related.css';
     }
 
@@ -130,7 +143,8 @@ function hook_related_render_footer($data)
 {
     // List of plugin's JS files.
     // Note that you just need to specify CSS path.
-    if ($data['_PAGE_'] == Router::$PAGE_LINKLIST) {
+    global $routerClass;
+    if ($data['_PAGE_'] == $routerClass::$PAGE_LINKLIST) {
         $data['js_files'][] = PluginManager::$PLUGINS_PATH . '/related/related.js';
     }
 
