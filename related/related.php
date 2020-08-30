@@ -7,12 +7,40 @@ use Shaarli\Router;
 
 
 global $routerClass;
+global $newLinkDb;
 if (class_exists('Shaarli\Legacy\LegacyRouter')) {
     $routerClass = 'Shaarli\Legacy\LegacyRouter';
+    $newLinkDb = true;
 }
 else
 {
     $routerClass = 'Shaarli\Router';
+    $newLinkDb = false;
+}
+
+function get_bookmarks()
+{
+    global $newLinkDb;
+    if ($newLinkDb)
+    {
+        global $app;
+        $container = $app->getContainer();
+        $bookmarkService = $container->bookmarkService;
+        $bookmarks = $bookmarkService->search([], 'all');
+        $formatter = $container->formatterFactory->getFormatter();
+        $flatBookmarks = [];
+        foreach($bookmarks as $bookmark)
+        {
+            $flatBookmarks[] = (array)$formatter->format($bookmark);
+        }
+        return $flatBookmarks;
+    }
+    else
+    {
+        // Legacy method to access bookmarks
+        global $linkDb;
+        return $linkDb;
+    }
 }
 
 /**
@@ -39,7 +67,7 @@ function hook_related_render_linklist($data, $conf)
     $html = file_get_contents(PluginManager::$PLUGINS_PATH . '/related/related.html');
     $link_html = file_get_contents(PluginManager::$PLUGINS_PATH . '/related/related_link.html');
 
-    $linkDb = $data['links'];
+    $linkDb = get_bookmarks();
     foreach ($data['links'] as &$value) {
         $current_tags = explode(' ', $value['tags']);
         $related = [];
