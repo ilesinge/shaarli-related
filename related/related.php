@@ -6,18 +6,67 @@ use Shaarli\Legacy\LegacyRouter;
 use Shaarli\Router;
 
 
-global $routerClass;
-global $newLinkDb;
-if (class_exists('Shaarli\Legacy\LegacyRouter')) {
-    $routerClass = 'Shaarli\Legacy\LegacyRouter';
-    $newLinkDb = true;
-}
-else
+/**
+ * Initialization function.
+ * It will be called when the plugin is loaded.
+ * This function can be used to return a list of initialization errors.
+ *
+ * @param $conf ConfigManager instance.
+ *
+ * @return array List of errors (optional).
+ */
+function related_init($conf)
 {
-    $routerClass = 'Shaarli\Router';
-    $newLinkDb = false;
+
+    global $routerClass;
+    global $newLinkDb;
+    if (class_exists('Shaarli\Legacy\LegacyRouter')) {
+        $routerClass = 'Shaarli\Legacy\LegacyRouter';
+        $newLinkDb = true;
+    }
+    else
+    {
+        $routerClass = 'Shaarli\Router';
+        $newLinkDb = false;
+    }
+
+    if (! $conf->exists('translation.extensions.related')) {
+        // Custom translation with the domain 'demo'
+        $conf->set('translation.extensions.related', 'plugins/related/languages/');
+        $conf->write(true);
+    }
+
+    return [];
 }
 
+
+
+/**
+ * In the footer hook, there is a working example of a translation extension for Shaarli.
+ *
+ * The extension must be attached to a new translation domain (i.e. NOT 'shaarli').
+ * Use case: any custom theme or non official plugin can use the translation system.
+ *
+ * See the documentation for more information.
+ */
+const EXT_TRANSLATION_DOMAIN = 'related';
+
+/*
+ * This is not necessary, but it's easier if you don't want Poedit to mix up your translations.
+ */
+function related_plugin_t($text, $nText = '', $nb = 1)
+{
+    return t($text, $nText, $nb, EXT_TRANSLATION_DOMAIN);
+}
+
+/**
+ * Get the bookmark list in a backward-compatible fashion.
+ * 
+ * < 0.12 use the global $linkDb variable
+ * >= 0.12 use the bookmarkService
+ * 
+ * @return array Bookmark list
+ */
 function get_bookmarks()
 {
     global $newLinkDb;
@@ -64,6 +113,7 @@ function hook_related_render_linklist($data, $conf)
 {
     $theme = $conf->get('resource.theme');
 
+    // @TODO use proper templating system
     $html = file_get_contents(PluginManager::$PLUGINS_PATH . '/related/related.html');
     $link_html = file_get_contents(PluginManager::$PLUGINS_PATH . '/related/related_link.html');
 
@@ -93,26 +143,32 @@ function hook_related_render_linklist($data, $conf)
         $related = array_slice($related, 0, 5);
 
         $list_items = '';
-        foreach ($related as $related_link) {
-            $description = html_entity_decode($related_link['description']);
-            $description = strip_tags($related_link['description']);
-            // @TODO config description length
-            $description_length = 150;
-            $description = mb_strlen($description) > $description_length ? mb_substr($description, 0, $description_length)."..." : $description;
-            $description = htmlentities($description);
+        if (empty($related)) {
+            $list_items = "<li>".related_plugin_t('No related link')."</li>";
+        }
+        else {
+            foreach ($related as $related_link) {
+                $description = html_entity_decode($related_link['description']);
+                $description = strip_tags($related_link['description']);
+                // @TODO config description length
+                $description_length = 150;
+                $description = mb_strlen($description) > $description_length ? mb_substr($description, 0, $description_length)."..." : $description;
+                $description = htmlentities($description);
 
-            // @TODO Add config to switch URL <=> shorturl
+                // @TODO Add config to switch URL <=> shorturl
 
-            $list_items .= sprintf($link_html,
-                '?'.$related_link['shorturl'],
-                $related_link['title'],
-                $description
-            );
+                $list_items .= sprintf($link_html,
+                    '?'.$related_link['shorturl'],
+                    $related_link['title'],
+                    $description
+                );
+            }
         }
 
         $link_plugin = sprintf($html,
             $value['id'],
             $data['_BASE_PATH_'],
+            related_plugin_t('See related links'),
             $value['id'],
             $list_items
         );
