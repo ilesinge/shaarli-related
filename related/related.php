@@ -2,8 +2,6 @@
 
 use Shaarli\Config\ConfigManager;
 use Shaarli\Plugin\PluginManager;
-use Shaarli\Legacy\LegacyRouter;
-use Shaarli\Router;
 
 
 /**
@@ -59,6 +57,8 @@ function related_plugin_t($text, $nText = '', $nb = 1)
     return t($text, $nText, $nb, EXT_TRANSLATION_DOMAIN);
 }
 
+$relatedBookmarkTags = [];
+
 /**
  * Get the bookmark list in a backward-compatible fashion.
  * 
@@ -70,9 +70,11 @@ function related_plugin_t($text, $nText = '', $nb = 1)
 function get_bookmarks()
 {
     global $newLinkDb;
+    global $relatedBookmarkTags;
     if ($newLinkDb)
     {
         global $app;
+        /** @var \Shaarli\Container\ShaarliContainer $container */
         $container = $app->getContainer();
         $bookmarkService = $container->bookmarkService;
         $bookmarks = $bookmarkService->search([], 'all');
@@ -80,7 +82,10 @@ function get_bookmarks()
         $flatBookmarks = [];
         foreach($bookmarks as $bookmark)
         {
-            $flatBookmarks[] = (array)$formatter->format($bookmark);
+            $flatBookmarks[$bookmark->getId()] = (array)$formatter->format($bookmark);
+            foreach ($bookmark->getTags() as $tag) {
+                $relatedBookmarkTags[$tag][] = $bookmark->getId();
+            }
         }
         return $flatBookmarks;
     }
@@ -88,6 +93,13 @@ function get_bookmarks()
     {
         // Legacy method to access bookmarks
         global $linkDb;
+
+        foreach ($linkDb as $link) {
+            foreach (explode(' ', $link['tags']) as $tag) {
+                $relatedBookmarkTags[$tag][] = $link['id'];
+            }
+        }
+
         return $linkDb;
     }
 }
@@ -111,6 +123,8 @@ function get_bookmarks()
  */
 function hook_related_render_linklist($data, $conf)
 {
+    global $relatedBookmarkTags;
+
     $theme = $conf->get('resource.theme');
 
     // @TODO use proper templating system
@@ -121,20 +135,24 @@ function hook_related_render_linklist($data, $conf)
     foreach ($data['links'] as &$value) {
         $current_tags = explode(' ', $value['tags']);
         $related = [];
-        $count = [];
-        foreach ($linkDb as $link) {
-            if ($link['id'] !== $value['id']) {
-                if (!$link['private'] || $data['_LOGGEDIN_']) {
-                    $link_tags = explode(' ', $link['tags']);
-                    $count_common = count(array_intersect($current_tags, $link_tags));
-                    // @TODO config minimum number of identical tags
-                    if ($count_common > 0) {
-                        $link['count'] = $count_common;
-                        $related[] = $link;
+
+        foreach ($current_tags as $tag) {
+            if (array_key_exists($tag, $relatedBookmarkTags)) {
+                foreach ($relatedBookmarkTags[$tag] as $bookmarkId) {
+                    if ($bookmarkId === $value['id'] || ($value['private'] && true !== $data['_LOGGEDIN_'])) {
+                        continue;
                     }
+
+                    // @TODO config minimum number of identical tags
+                    if (!array_key_exists($bookmarkId, $related)) {
+                        $related[$bookmarkId] = $linkDb[$bookmarkId];
+                        $related[$bookmarkId]['count'] = 0;
+                    }
+                    $related[$bookmarkId]['count']++;
                 }
             }
         }
+
         shuffle($related);
         usort($related, function($a, $b) {
             return $b['count'] - $a['count'];
