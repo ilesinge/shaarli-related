@@ -167,7 +167,7 @@ function hook_related_render_linklist($data, $conf)
         else {
             foreach ($related as $related_link) {
                 $description = html_entity_decode($related_link['description']);
-                $description = strip_tags($related_link['description']);
+                $description = strip_tags($description);
                 // @TODO config description length
                 $description_length = 150;
                 $description = mb_strlen($description) > $description_length ? mb_substr($description, 0, $description_length)."..." : $description;
