@@ -219,7 +219,7 @@ function hook_related_render_includes($data)
     // Note that you just need to specify CSS path.
     global $routerClass;
     if ($data['_PAGE_'] == $routerClass::$PAGE_LINKLIST) {
-        $data['css_files'][] = ($data['_BASE_PATH_'] ?? '') . '/' . PluginManager::$PLUGINS_PATH . '/related/related.css';
+        $data['css_files'][] = PluginManager::$PLUGINS_PATH . '/related/related.css';
     }
 
     return $data;
@@ -248,7 +248,7 @@ function hook_related_render_footer($data)
     // Note that you just need to specify CSS path.
     global $routerClass;
     if ($data['_PAGE_'] == $routerClass::$PAGE_LINKLIST) {
-        $data['js_files'][] = ($data['_BASE_PATH_'] ?? '') . '/' . PluginManager::$PLUGINS_PATH . '/related/related.js';
+        $data['js_files'][] = PluginManager::$PLUGINS_PATH . '/related/related.js';
     }
 
     return $data;
