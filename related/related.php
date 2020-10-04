@@ -174,9 +174,15 @@ function hook_related_render_linklist($data, $conf)
                 $description = htmlentities($description);
 
                 // @TODO Add config to switch URL <=> shorturl
-
+                global $newLinkDb;
+                if ($newLinkDb) {
+                    $link = $data['_BASE_PATH_'].'/shaare/'.$related_link['shorturl'];
+                }
+                else {
+                    $link = '?'.$related_link['shorturl'];
+                }
                 $list_items .= sprintf($link_html,
-                    '?'.$related_link['shorturl'],
+                    $link,
                     $related_link['title'],
                     $description
                 );
