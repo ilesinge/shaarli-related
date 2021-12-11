@@ -139,7 +139,7 @@ function hook_related_render_linklist($data, $conf)
         foreach ($current_tags as $tag) {
             if (array_key_exists($tag, $relatedBookmarkTags)) {
                 foreach ($relatedBookmarkTags[$tag] as $bookmarkId) {
-                    if ($bookmarkId === $value['id'] || ($value['private'] && true !== $data['_LOGGEDIN_'])) {
+                    if ($bookmarkId === $value['id'] || ($linkDb[$bookmarkId]['private'] && true !== $data['_LOGGEDIN_'])) {
                         continue;
                     }
 
