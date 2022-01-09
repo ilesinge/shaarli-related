@@ -80,6 +80,12 @@ function get_bookmarks()
         $bookmarks = $bookmarkService->search([], 'all');
         $formatter = $container->formatterFactory->getFormatter();
         $flatBookmarks = [];
+
+        if (method_exists($bookmarks, 'getBookmarks'))
+        {
+            $bookmarks = $bookmarks->getBookmarks();
+        }
+
         foreach($bookmarks->getBookmarks() as $bookmark)
         {
             $flatBookmarks[$bookmark->getId()] = (array)$formatter->format($bookmark);
