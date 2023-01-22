@@ -85,8 +85,7 @@ function get_bookmarks()
         {
             $bookmarks = $bookmarks->getBookmarks();
         }
-
-        foreach($bookmarks->getBookmarks() as $bookmark)
+        foreach($bookmarks as $bookmark)
         {
             $flatBookmarks[$bookmark->getId()] = (array)$formatter->format($bookmark);
             foreach ($bookmark->getTags() as $tag) {
